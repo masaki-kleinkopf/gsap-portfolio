@@ -38,7 +38,3 @@ a {
 a:hover {
   color: var(--color-magenta);
 }
-
-a.fun-btn:hover {
-  color: inherit;
-}

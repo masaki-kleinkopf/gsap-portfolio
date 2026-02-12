@@ -18,26 +18,9 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [currentTime, setCurrentTime] = useState("");
-
-  useEffect(() => {
-    const tick = () =>
-      setCurrentTime(
-        new Date().toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        }),
-      );
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
 
   useGSAP(
     () => {
-      // === INTRO SPIN SEQUENCE ===
-      // Pin the intro section while we scroll through the animation
       const introTl = gsap.timeline({
         scrollTrigger: {
           trigger: ".intro-pin",
@@ -48,7 +31,6 @@ export default function Home() {
         },
       });
 
-      // Image starts scaled down, rotated, and faded — spins in like a TV freeze frame
       introTl
         .fromTo(
           ".intro-photo",
@@ -61,21 +43,17 @@ export default function Home() {
             ease: "power2.out",
           },
         )
-        // Name card slaps on
         .fromTo(
           ".intro-caption",
           { scale: 0, rotation: 15 },
           { scale: 1, rotation: -3, duration: 0.3, ease: "back.out(2)" },
           0.7,
         )
-        // Hold for a beat so it feels like a freeze frame
         .to({}, { duration: 0.4 })
-        // Then everything fades/scales away to release the scroll
         .to(".intro-photo", { scale: 0.95, opacity: 0.3, duration: 0.3 })
         .to(".intro-caption", { opacity: 0, y: -20, duration: 0.2 }, "<")
         .to(".intro-cta", { opacity: 1, duration: 0.3 });
 
-      // Big name — drops in heavy
       gsap.from(".hero-name", {
         y: 80,
         opacity: 0,
@@ -98,7 +76,6 @@ export default function Home() {
         ease: "power1.out",
       });
 
-      // Marquee
       gsap.to(".marquee-track", {
         xPercent: -50,
         repeat: -1,
@@ -106,7 +83,6 @@ export default function Home() {
         ease: "none",
       });
 
-      // Resume button
       gsap.from(".resume-section", {
         scrollTrigger: {
           trigger: ".resume-section",
@@ -119,7 +95,6 @@ export default function Home() {
         ease: "power2.out",
       });
 
-      // Geometric divider shapes
       const geos = gsap.utils.toArray<HTMLElement>(".geo");
       geos.forEach((el, i) => {
         gsap.from(el, {
@@ -136,7 +111,6 @@ export default function Home() {
         });
       });
 
-      // Continuous slow rotation on the geo shapes
       gsap.to(".geo-square, .geo-diamond, .geo-diamond-big", {
         scrollTrigger: {
           trigger: ".geo-divider",
@@ -159,7 +133,6 @@ export default function Home() {
         ease: "power1.inOut",
       });
 
-      // About text
       gsap.from(".about-text", {
         scrollTrigger: {
           trigger: ".about-section",
@@ -171,8 +144,8 @@ export default function Home() {
         opacity: 0,
       });
 
-      // Fun buttons — give them life on hover via GSAP
       const buttons = gsap.utils.toArray<HTMLElement>(".fun-btn");
+
       buttons.forEach((btn) => {
         btn.addEventListener("mouseenter", () => {
           gsap.to(btn, {
@@ -192,7 +165,6 @@ export default function Home() {
         });
       });
 
-      // Blink
       gsap.to(".blink", {
         opacity: 0,
         repeat: -1,
@@ -201,7 +173,6 @@ export default function Home() {
         ease: "steps(1)",
       });
 
-      // Floating sticker rotation
       gsap.to(".sticker", {
         rotation: "+=360",
         repeat: -1,
@@ -209,7 +180,6 @@ export default function Home() {
         ease: "none",
       });
 
-      // Footer items
       gsap.from(".footer-item", {
         scrollTrigger: {
           trigger: ".footer-section",
@@ -229,7 +199,7 @@ export default function Home() {
   return (
     <div ref={containerRef}>
       <section className="intro-pin h-screen bg-[var(--color-text)] flex flex-col items-center justify-center overflow-hidden relative">
-        <div className="intro-photo relative">
+        <div className="intro-photo relative" style={{ opacity: 0 }}>
           <div className="w-64 h-64 md:w-80 md:h-80 border-4 border-white overflow-hidden">
             <img
               src="/IMG_8720.jpg"
@@ -238,12 +208,12 @@ export default function Home() {
             />
           </div>
         </div>
-        <div className="intro-caption absolute bottom-[22%] md:bottom-[25%] bg-[var(--color-magenta)] text-white px-6 py-3 border-2 border-white">
+        <div className="intro-caption absolute bottom-[22%] md:bottom-[25%] bg-[var(--color-magenta)] text-white px-6 py-3 border-2 border-white" style={{ scale: 0 }}>
           <p className="font-bold text-2xl md:text-3xl tracking-tight leading-none">
             Masaki Kleinkopf
           </p>
           <p className="font-[family-name:var(--font-mono)] text-xs mt-1 opacity-80">
-            Frontend Developer · Breakfast Enjoyer
+            Software Developer · Breakfast Enjoyer
           </p>
         </div>
         <div className="intro-cta absolute bottom-10 opacity-0 font-[family-name:var(--font-mono)] text-xs text-white/50 text-center">
@@ -272,9 +242,6 @@ export default function Home() {
           >
             Contact
           </a>
-          <span className="font-[family-name:var(--font-mono)] text-xs hidden md:inline">
-            {currentTime}
-          </span>
         </div>
       </nav>
       <section className="px-5 md:px-10 pt-16 pb-20 md:pt-28 md:pb-32 relative">
@@ -302,7 +269,7 @@ export default function Home() {
               className="text-4xl md:text-5xl font-bold tracking-tight"
             >
               REACT · TYPESCRIPT · GSAP · REACT ROUTER · TAILWIND · NODE · FIGMA
-              · <span className="text-[var(--color-magenta)]">♥</span> ·{" "}
+              · <span className="text-[var(--color-magenta)]">✦</span> ·{" "}
             </span>
           ))}
         </div>
@@ -315,11 +282,12 @@ export default function Home() {
           Experience
         </h2>
         <p className="text-lg text-[var(--color-text-muted)] mb-2 max-w-lg">
-          Currently building e-commerce software at Munchkin working in headless Shopify. Previous agency experience working with a variety of brands.
+          Currently building e-commerce software at Munchkin working in headless
+          Shopify. Previous agency experience working with a variety of brands.
         </p>
         <div className="mt-8">
           <a
-            href="/resume.pdf"
+            href="/kleinkopf-resume.pdf"
             className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-surface)] no-underline border-2 border-[var(--color-text)]"
           >
             Resume (PDF) ↓
@@ -347,7 +315,10 @@ export default function Home() {
           </h2>
           <div className="about-text space-y-5 text-lg">
             <p>
-              I build software. I enjoy learning new things and collaborating with others to solve interesting problems and create user friendly experiences. I also enjoy eating good food, running and spending time off of a screen.
+              I build software. I enjoy learning new things and collaborating
+              with others to solve interesting problems and create user friendly
+              experiences. I also enjoy eating good food, running and spending
+              time off of a screen.
             </p>
           </div>
         </div>
@@ -362,7 +333,7 @@ export default function Home() {
         <div className="flex flex-wrap gap-4">
           <a
             href="mailto:masaki.kleinkopf@gmail.com"
-            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-magenta)] text-white no-underline border-2 border-[var(--color-text)]"
+            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-magenta)] text-white hover:!text-white no-underline border-2 border-[var(--color-text)]"
           >
             masaki.kleinkopf@gmail.com
           </a>
