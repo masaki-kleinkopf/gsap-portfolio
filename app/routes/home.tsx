@@ -54,6 +54,8 @@ export default function Home() {
         .to(".intro-caption", { opacity: 0, y: -20, duration: 0.2 }, "<")
         .to(".intro-cta", { opacity: 1, duration: 0.3 });
 
+      introTl.to(".intro-scroll-hint", { opacity: 0, duration: 0.1 }, 0);
+
       gsap.from(".hero-name", {
         y: 80,
         opacity: 0,
@@ -215,6 +217,10 @@ export default function Home() {
           <p className="font-[family-name:var(--font-mono)] text-xs mt-1 opacity-80">
             Software Developer · Breakfast Enjoyer
           </p>
+        </div>
+        <div className="intro-scroll-hint absolute bottom-10 font-[family-name:var(--font-mono)] text-xs text-white/40 text-center">
+          <p>scroll</p>
+          <p className="mt-1 animate-bounce">↓</p>
         </div>
         <div className="intro-cta absolute bottom-10 opacity-0 font-[family-name:var(--font-mono)] text-xs text-white/50 text-center">
           <p>keep scrolling</p>
