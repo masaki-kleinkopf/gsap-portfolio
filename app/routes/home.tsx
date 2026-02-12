@@ -218,7 +218,7 @@ export default function Home() {
             Software Developer · Breakfast Enjoyer
           </p>
         </div>
-        <div className="intro-scroll-hint absolute bottom-10 font-[family-name:var(--font-mono)] text-xs text-white/40 text-center">
+        <div className="intro-scroll-hint absolute bottom-20 md:bottom-10 font-[family-name:var(--font-mono)] text-xs text-white/40 text-center">
           <p>scroll</p>
           <p className="mt-1 animate-bounce">↓</p>
         </div>
