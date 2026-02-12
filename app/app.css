@@ -1,20 +1,16 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
 @theme {
-  --font-serif: "DM Serif Display", "Georgia", serif;
-  --font-sans: "Instrument Sans", system-ui, sans-serif;
+  --font-sans: "Helvetica Neue", "Arial", sans-serif;
   --font-mono: "Space Mono", monospace;
-  --color-page-bg: #f2efe8;
-  --color-surface: #fffef9;
-  --color-border: #d4d0c8;
-  --color-text: #1a1a1a;
-  --color-text-muted: #777770;
+  --color-cream: #e8e5d7;
+  --color-surface: #f3f1e8;
+  --color-text: #000000;
+  --color-text-muted: #666660;
   --color-link: #0000ee;
   --color-magenta: #d6336c;
-  --color-chartreuse: #8db600;
-  --color-electric: #4361ee;
-  --color-peach: #ff8c69;
+  --color-border: #c8c5b8;
 }
 
 html {
@@ -22,11 +18,11 @@ html {
 }
 
 body {
-  background-color: var(--color-page-bg);
+  background-color: var(--color-cream);
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.65;
+  line-height: 1.5;
 }
 
 ::selection {
@@ -37,10 +33,12 @@ body {
 a {
   color: var(--color-link);
   text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
 }
 
 a:hover {
   color: var(--color-magenta);
+}
+
+a.fun-btn:hover {
+  color: inherit;
 }

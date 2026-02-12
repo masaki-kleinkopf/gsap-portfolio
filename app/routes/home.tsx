@@ -8,52 +8,13 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Masaki Kleinkopf — Personal Homepage" },
+    { title: "Masaki Kleinkopf" },
     {
       name: "description",
       content: "The personal homepage of Masaki Kleinkopf.",
     },
   ];
 }
-
-const projects = [
-  {
-    title: "Interactive Dashboard",
-    description: "Real-time data viz with D3 and React. Lots of charts. Very satisfying.",
-    tech: ["React", "D3.js", "WebSockets"],
-    year: "2025",
-    status: "live",
-  },
-  {
-    title: "Design System",
-    description: "Component library & docs site. The kind of project that never feels done.",
-    tech: ["TypeScript", "Storybook", "Tailwind"],
-    year: "2024",
-    status: "live",
-  },
-  {
-    title: "Animation Playground",
-    description: "Scroll experiments & interaction sketches. This site is part of it.",
-    tech: ["GSAP", "ScrollTrigger", "React"],
-    year: "2024",
-    status: "ongoing",
-  },
-  {
-    title: "E-Commerce Frontend",
-    description: "Headless Shopify storefront. Fast. Edge-cached. People bought things.",
-    tech: ["Next.js", "Shopify API", "Vercel"],
-    year: "2023",
-    status: "live",
-  },
-];
-
-const thoughts = [
-  "The best interfaces feel like they were always that way.",
-  "I think about spacing more than I should.",
-  "Serif fonts on the web are underrated.",
-  "Animation should feel like breathing — you notice when it stops.",
-  "Every portfolio is a lie. This one is at least a fun lie.",
-];
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,27 +36,65 @@ export default function Home() {
 
   useGSAP(
     () => {
-      // Hero — the big name
-      gsap.from(".hero-name", {
-        y: 60,
-        opacity: 0,
-        rotation: -2,
-        duration: 1,
-        ease: "power3.out",
+      // === INTRO SPIN SEQUENCE ===
+      // Pin the intro section while we scroll through the animation
+      const introTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".intro-pin",
+          start: "top top",
+          end: "+=150%",
+          pin: true,
+          scrub: 1,
+        },
       });
 
-      gsap.from(".hero-subtitle", {
-        y: 20,
+      // Image starts scaled down, rotated, and faded — spins in like a TV freeze frame
+      introTl
+        .fromTo(
+          ".intro-photo",
+          { rotation: -720, scale: 0.1, opacity: 0 },
+          {
+            rotation: 0,
+            scale: 1,
+            opacity: 1,
+            duration: 1,
+            ease: "power2.out",
+          },
+        )
+        // Name card slaps on
+        .fromTo(
+          ".intro-caption",
+          { scale: 0, rotation: 15 },
+          { scale: 1, rotation: -3, duration: 0.3, ease: "back.out(2)" },
+          0.7,
+        )
+        // Hold for a beat so it feels like a freeze frame
+        .to({}, { duration: 0.4 })
+        // Then everything fades/scales away to release the scroll
+        .to(".intro-photo", { scale: 0.95, opacity: 0.3, duration: 0.3 })
+        .to(".intro-caption", { opacity: 0, y: -20, duration: 0.2 }, "<")
+        .to(".intro-cta", { opacity: 1, duration: 0.3 });
+
+      // Big name — drops in heavy
+      gsap.from(".hero-name", {
+        y: 80,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power4.out",
+      });
+
+      gsap.from(".hero-sub", {
+        y: 30,
         opacity: 0,
         duration: 0.8,
-        delay: 0.4,
+        delay: 0.3,
         ease: "power2.out",
       });
 
-      gsap.from(".hero-aside", {
+      gsap.from(".hero-detail", {
         opacity: 0,
-        duration: 1,
-        delay: 0.9,
+        duration: 0.8,
+        delay: 0.7,
         ease: "power1.out",
       });
 
@@ -103,63 +102,94 @@ export default function Home() {
       gsap.to(".marquee-track", {
         xPercent: -50,
         repeat: -1,
-        duration: 25,
+        duration: 30,
         ease: "none",
       });
 
-      // Project cards tumble in
-      gsap.from(".project-card", {
+      // Resume button
+      gsap.from(".resume-section", {
         scrollTrigger: {
-          trigger: ".projects-grid",
-          start: "top 75%",
+          trigger: ".resume-section",
+          start: "top 80%",
           toggleActions: "play none none reverse",
         },
-        y: 50,
+        y: 40,
         opacity: 0,
-        rotation: () => gsap.utils.random(-3, 3),
-        stagger: 0.15,
         duration: 0.7,
         ease: "power2.out",
       });
 
-      // Thoughts — one by one
-      gsap.from(".thought", {
-        scrollTrigger: {
-          trigger: ".thoughts-section",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-        opacity: 0,
-        x: -20,
-        stagger: 0.12,
-        duration: 0.5,
-        ease: "power2.out",
+      // Geometric divider shapes
+      const geos = gsap.utils.toArray<HTMLElement>(".geo");
+      geos.forEach((el, i) => {
+        gsap.from(el, {
+          scrollTrigger: {
+            trigger: ".geo-divider",
+            start: "top 85%",
+            end: "top 30%",
+            scrub: 1,
+          },
+          scale: 0,
+          rotation: i % 2 === 0 ? -180 : 180,
+          opacity: 0,
+          ease: "power2.out",
+        });
       });
 
-      // The big italic pull quote
-      gsap.from(".pull-quote", {
+      // Continuous slow rotation on the geo shapes
+      gsap.to(".geo-square, .geo-diamond, .geo-diamond-big", {
         scrollTrigger: {
-          trigger: ".pull-quote",
+          trigger: ".geo-divider",
+          start: "top 80%",
+          end: "bottom 20%",
+          scrub: 2,
+        },
+        rotation: "+=90",
+        ease: "none",
+      });
+
+      gsap.to(".geo-circle, .geo-circle-fill", {
+        scrollTrigger: {
+          trigger: ".geo-divider",
+          start: "top 80%",
+          end: "bottom 20%",
+          scrub: 2,
+        },
+        scale: 1.2,
+        ease: "power1.inOut",
+      });
+
+      // About text
+      gsap.from(".about-text", {
+        scrollTrigger: {
+          trigger: ".about-section",
           start: "top 80%",
           end: "top 40%",
           scrub: 1,
         },
-        x: -80,
+        y: 40,
         opacity: 0,
       });
 
-      // Footer bits
-      gsap.from(".footer-item", {
-        scrollTrigger: {
-          trigger: ".footer-section",
-          start: "top 90%",
-          toggleActions: "play none none reverse",
-        },
-        opacity: 0,
-        y: 10,
-        stagger: 0.06,
-        duration: 0.4,
-        ease: "power1.out",
+      // Fun buttons — give them life on hover via GSAP
+      const buttons = gsap.utils.toArray<HTMLElement>(".fun-btn");
+      buttons.forEach((btn) => {
+        btn.addEventListener("mouseenter", () => {
+          gsap.to(btn, {
+            rotation: gsap.utils.random(-5, 5),
+            scale: 1.08,
+            duration: 0.25,
+            ease: "power2.out",
+          });
+        });
+        btn.addEventListener("mouseleave", () => {
+          gsap.to(btn, {
+            rotation: 0,
+            scale: 1,
+            duration: 0.35,
+            ease: "elastic.out(1, 0.5)",
+          });
+        });
       });
 
       // Blink
@@ -170,181 +200,197 @@ export default function Home() {
         duration: 0.53,
         ease: "steps(1)",
       });
+
+      // Floating sticker rotation
+      gsap.to(".sticker", {
+        rotation: "+=360",
+        repeat: -1,
+        duration: 20,
+        ease: "none",
+      });
+
+      // Footer items
+      gsap.from(".footer-item", {
+        scrollTrigger: {
+          trigger: ".footer-section",
+          start: "top 90%",
+          toggleActions: "play none none reverse",
+        },
+        opacity: 0,
+        y: 10,
+        stagger: 0.05,
+        duration: 0.3,
+        ease: "power1.out",
+      });
     },
     { scope: containerRef },
   );
 
   return (
     <div ref={containerRef}>
-      {/* Topbar */}
-      <div className="flex justify-between items-center px-5 md:px-10 py-3 text-xs font-[family-name:var(--font-mono)] text-[var(--color-text-muted)] border-b border-[var(--color-border)]">
-        <span>masaki kleinkopf</span>
-        <span>{currentTime}</span>
-      </div>
-
-      {/* Hero */}
-      <section className="px-5 md:px-10 pt-20 pb-16 md:pt-32 md:pb-24">
-        <h1 className="hero-name font-[family-name:var(--font-serif)] text-6xl md:text-8xl lg:text-9xl leading-none mb-6">
-          Masaki<span className="text-[var(--color-magenta)]">.</span>
-        </h1>
-        <p className="hero-subtitle text-xl md:text-2xl text-[var(--color-text-muted)] max-w-lg">
-          Frontend developer, sometimes designer, full-time overthinker.
-        </p>
-        <p className="hero-aside mt-6 font-[family-name:var(--font-mono)] text-sm text-[var(--color-text-muted)]">
-          Currently based somewhere with wifi
-          <span className="blink ml-1">▮</span>
-        </p>
+      <section className="intro-pin h-screen bg-[var(--color-text)] flex flex-col items-center justify-center overflow-hidden relative">
+        <div className="intro-photo relative">
+          <div className="w-64 h-64 md:w-80 md:h-80 border-4 border-white overflow-hidden">
+            <img
+              src="/IMG_8720.jpg"
+              alt="Masaki eating a full English breakfast at Pellicci's"
+              className="w-full h-full object-cover object-[center_30%]"
+            />
+          </div>
+        </div>
+        <div className="intro-caption absolute bottom-[22%] md:bottom-[25%] bg-[var(--color-magenta)] text-white px-6 py-3 border-2 border-white">
+          <p className="font-bold text-2xl md:text-3xl tracking-tight leading-none">
+            Masaki Kleinkopf
+          </p>
+          <p className="font-[family-name:var(--font-mono)] text-xs mt-1 opacity-80">
+            Frontend Developer · Breakfast Enjoyer
+          </p>
+        </div>
+        <div className="intro-cta absolute bottom-10 opacity-0 font-[family-name:var(--font-mono)] text-xs text-white/50 text-center">
+          <p>keep scrolling</p>
+          <p className="mt-1">↓</p>
+        </div>
       </section>
-
-      {/* Marquee */}
-      <div className="overflow-hidden border-y border-[var(--color-border)] py-3 bg-[var(--color-surface)]">
+      <nav className="flex justify-between items-center px-5 md:px-10 py-4 text-sm">
+        <span className="font-bold">masaki k.</span>
+        <div className="flex items-center gap-6 text-[var(--color-text-muted)]">
+          <a
+            href="#work"
+            className="no-underline hover:text-[var(--color-text)]"
+          >
+            Resume
+          </a>
+          <a
+            href="#about"
+            className="no-underline hover:text-[var(--color-text)]"
+          >
+            About
+          </a>
+          <a
+            href="#contact"
+            className="no-underline hover:text-[var(--color-text)]"
+          >
+            Contact
+          </a>
+          <span className="font-[family-name:var(--font-mono)] text-xs hidden md:inline">
+            {currentTime}
+          </span>
+        </div>
+      </nav>
+      <section className="px-5 md:px-10 pt-16 pb-20 md:pt-28 md:pb-32 relative">
+        <h1 className="hero-name text-7xl md:text-[8rem] lg:text-[10rem] font-bold leading-[0.9] tracking-tight">
+          Masaki
+          <br />
+          <span className="text-[var(--color-magenta)]">Kleinkopf</span>
+        </h1>
+        <p className="hero-sub text-xl md:text-2xl mt-8 max-w-md text-[var(--color-text-muted)]">
+          Software developer.
+        </p>
+        <div className="sticker absolute top-16 right-8 md:right-16 w-20 h-20 md:w-28 md:h-28 border-2 border-[var(--color-magenta)] rounded-full flex items-center justify-center text-[var(--color-magenta)] font-[family-name:var(--font-mono)] text-[10px] md:text-xs text-center leading-tight pointer-events-none">
+          scroll
+          <br />
+          down
+          <br />
+          :)
+        </div>
+      </section>
+      <div className="overflow-hidden border-y-2 border-[var(--color-text)] py-4">
         <div className="marquee-track whitespace-nowrap inline-block">
           {[0, 1].map((n) => (
-            <span key={n} className="font-[family-name:var(--font-serif)] italic text-2xl md:text-3xl text-[var(--color-text-muted)] mr-4">
-              React · TypeScript · GSAP · Next.js · Tailwind · Node · Vite · Figma · D3 · GraphQL ·{" "}
-              <span className="text-[var(--color-magenta)]">♥</span> ·{" "}
+            <span
+              key={n}
+              className="text-4xl md:text-5xl font-bold tracking-tight"
+            >
+              REACT · TYPESCRIPT · GSAP · REACT ROUTER · TAILWIND · NODE · FIGMA
+              · <span className="text-[var(--color-magenta)]">♥</span> ·{" "}
             </span>
           ))}
         </div>
       </div>
-
-      {/* About — casual */}
-      <section className="px-5 md:px-10 py-16 md:py-24 max-w-2xl">
-        <p className="text-lg mb-4">
-          I make websites. I care about how they <em>feel</em> — the timing of a
-          transition, the weight of a typeface, whether a button feels like it
-          wants to be clicked.
-        </p>
-        <p className="text-lg text-[var(--color-text-muted)]">
-          Right now I'm deep in the GSAP rabbit hole, which is why this page
-          moves around a bit. Before that it was something else. There's always
-          a rabbit hole.
-        </p>
-      </section>
-
-      {/* Pull quote */}
-      <div className="pull-quote px-5 md:px-10 py-12 border-y border-[var(--color-border)]">
-        <p className="font-[family-name:var(--font-serif)] italic text-3xl md:text-5xl leading-tight text-[var(--color-magenta)] max-w-3xl">
-          "I like things that look simple but aren't."
-        </p>
-      </div>
-
-      {/* Projects */}
-      <section className="px-5 md:px-10 py-16 md:py-24">
-        <h2 className="font-[family-name:var(--font-mono)] text-xs uppercase tracking-widest text-[var(--color-text-muted)] mb-10">
-          Things I've Made
+      <section
+        id="work"
+        className="resume-section px-5 md:px-10 py-16 md:py-28"
+      >
+        <h2 className="font-[family-name:var(--font-mono)] text-xs uppercase tracking-widest text-[var(--color-text-muted)] mb-8">
+          Experience
         </h2>
-        <div className="projects-grid grid md:grid-cols-2 gap-5">
-          {projects.map((p, i) => (
-            <div
-              key={i}
-              className="project-card border border-[var(--color-border)] bg-[var(--color-surface)] p-5 hover:shadow-md transition-shadow cursor-pointer group"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-[family-name:var(--font-serif)] text-xl group-hover:text-[var(--color-magenta)] transition-colors">
-                  {p.title}
-                </h3>
-                <span className="font-[family-name:var(--font-mono)] text-xs text-[var(--color-text-muted)] mt-1">
-                  {p.year}
-                </span>
-              </div>
-              <p className="text-sm text-[var(--color-text-muted)] mb-3">{p.description}</p>
-              <div className="flex items-center gap-3">
-                <div className="flex gap-1.5 flex-wrap">
-                  {p.tech.map((t) => (
-                    <span
-                      key={t}
-                      className="font-[family-name:var(--font-mono)] text-[10px] px-1.5 py-0.5 bg-[var(--color-page-bg)] border border-[var(--color-border)]"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <span
-                  className={`font-[family-name:var(--font-mono)] text-[10px] ml-auto ${
-                    p.status === "live" ? "text-[var(--color-chartreuse)]" : "text-[var(--color-peach)]"
-                  }`}
-                >
-                  [{p.status}]
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Thoughts */}
-      <section className="thoughts-section px-5 md:px-10 py-16 md:py-24 border-t border-[var(--color-border)]">
-        <h2 className="font-[family-name:var(--font-mono)] text-xs uppercase tracking-widest text-[var(--color-text-muted)] mb-10">
-          Things I Believe (This Week)
-        </h2>
-        <div className="space-y-4 max-w-xl">
-          {thoughts.map((t, i) => (
-            <div key={i} className="thought flex items-start gap-3">
-              <span
-                className="mt-1.5 shrink-0 w-2.5 h-2.5 rounded-full"
-                style={{
-                  backgroundColor: ["#d6336c", "#4361ee", "#8db600", "#ff8c69", "#d6336c"][i],
-                }}
-              ></span>
-              <p className="font-[family-name:var(--font-serif)] italic text-lg">{t}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Contact — loose */}
-      <section className="px-5 md:px-10 py-16 md:py-24 border-t border-[var(--color-border)] bg-[var(--color-surface)]">
-        <h2 className="font-[family-name:var(--font-serif)] text-4xl md:text-5xl mb-6">
-          Say hi<span className="text-[var(--color-magenta)]">?</span>
-        </h2>
-        <p className="text-lg text-[var(--color-text-muted)] mb-8 max-w-md">
-          I'm always happy to chat about projects, weird CSS tricks, or whatever
-          you're excited about.
+        <p className="text-lg text-[var(--color-text-muted)] mb-2 max-w-lg">
+          Currently building e-commerce software at Munchkin working in headless Shopify. Previous agency experience working with a variety of brands.
         </p>
-        <div className="flex flex-wrap gap-4">
+        <div className="mt-8">
           <a
-            href="mailto:hello@masaki.dev"
-            className="font-[family-name:var(--font-mono)] text-sm px-5 py-2.5 border-2 border-[var(--color-magenta)] text-[var(--color-magenta)] no-underline hover:bg-[var(--color-magenta)] hover:text-white transition-colors"
+            href="/resume.pdf"
+            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-surface)] no-underline border-2 border-[var(--color-text)]"
           >
-            hello@masaki.dev
-          </a>
-          <a
-            href="#"
-            className="font-[family-name:var(--font-mono)] text-sm px-5 py-2.5 border border-[var(--color-border)] text-[var(--color-text-muted)] no-underline hover:border-[var(--color-text)] hover:text-[var(--color-text)] transition-colors"
-          >
-            github
-          </a>
-          <a
-            href="#"
-            className="font-[family-name:var(--font-mono)] text-sm px-5 py-2.5 border border-[var(--color-border)] text-[var(--color-text-muted)] no-underline hover:border-[var(--color-text)] hover:text-[var(--color-text)] transition-colors"
-          >
-            linkedin
+            Resume (PDF) ↓
           </a>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="footer-section px-5 md:px-10 py-8 border-t border-[var(--color-border)]">
-        <div className="flex flex-col md:flex-row justify-between gap-4 text-xs font-[family-name:var(--font-mono)] text-[var(--color-text-muted)]">
-          <div className="space-y-1">
-            <p className="footer-item">© 2026 Masaki Kleinkopf</p>
-            <p className="footer-item">
-              Made with React Router & GSAP. Set in{" "}
-              <span className="font-[family-name:var(--font-serif)] text-sm">DM Serif Display</span>,{" "}
-              <span>Instrument Sans</span>, and{" "}
-              <span>Space Mono</span>.
+      <section className="geo-divider overflow-hidden py-10 md:py-16 flex items-center justify-center relative">
+        <div className="flex items-center gap-6 md:gap-10">
+          <div className="geo geo-square w-12 h-12 md:w-16 md:h-16 border-2 border-[var(--color-text)]" />
+          <div className="geo geo-circle w-16 h-16 md:w-24 md:h-24 border-2 border-[var(--color-magenta)] rounded-full" />
+          <div className="geo geo-diamond w-10 h-10 md:w-14 md:h-14 border-2 border-[var(--color-text)] rotate-45" />
+          <div className="geo geo-circle-fill w-8 h-8 md:w-12 md:h-12 bg-[var(--color-magenta)] rounded-full" />
+          <div className="geo geo-square-big w-20 h-20 md:w-28 md:h-28 border-2 border-[var(--color-text)]" />
+          <div className="geo geo-dot w-4 h-4 md:w-6 md:h-6 bg-[var(--color-text)] rounded-full" />
+          <div className="geo geo-diamond-big w-14 h-14 md:w-20 md:h-20 border-2 border-[var(--color-magenta)] rotate-45" />
+        </div>
+      </section>
+      <section
+        id="about"
+        className="about-section px-5 md:px-10 py-16 md:py-28"
+      >
+        <div className="max-w-2xl">
+          <h2 className="font-[family-name:var(--font-mono)] text-xs uppercase tracking-widest text-[var(--color-text-muted)] mb-10">
+            About
+          </h2>
+          <div className="about-text space-y-5 text-lg">
+            <p>
+              I build software. I enjoy learning new things and collaborating with others to solve interesting problems and create user friendly experiences. I also enjoy eating good food, running and spending time off of a screen.
             </p>
           </div>
-          <div className="footer-item flex items-center gap-1.5 self-start md:self-end">
-            {["var(--color-magenta)", "var(--color-electric)", "var(--color-chartreuse)", "var(--color-peach)"].map((c, i) => (
-              <span
-                key={i}
-                className="inline-block w-3 h-3 rounded-full"
-                style={{ backgroundColor: `${c}` }}
-              ></span>
-            ))}
+        </div>
+      </section>
+      <section
+        id="contact"
+        className="px-5 md:px-10 py-16 md:py-28 border-t-2 border-[var(--color-text)]"
+      >
+        <h2 className="text-5xl md:text-7xl font-bold mb-8">
+          Say hello<span className="text-[var(--color-magenta)]">.</span>
+        </h2>
+        <div className="flex flex-wrap gap-4">
+          <a
+            href="mailto:masaki.kleinkopf@gmail.com"
+            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-magenta)] text-white no-underline border-2 border-[var(--color-text)]"
+          >
+            masaki.kleinkopf@gmail.com
+          </a>
+          <a
+            href="https://github.com/masaki-kleinkopf"
+            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-surface)] no-underline border-2 border-[var(--color-text)]"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://www.linkedin.com/in/masakikleinkopf/"
+            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-surface)] no-underline border-2 border-[var(--color-text)]"
+          >
+            LinkedIn
+          </a>
+        </div>
+      </section>
+      <footer className="footer-section px-5 md:px-10 py-8 border-t border-[var(--color-border)]">
+        <div className="flex flex-col md:flex-row justify-between gap-4 text-sm text-[var(--color-text-muted)]">
+          <div className="space-y-1">
+            <p className="footer-item">© 2026 Masaki Kleinkopf</p>
+            <p className="footer-item font-[family-name:var(--font-mono)] text-xs">
+              React Router + GSAP + Helvetica + vibes
+            </p>
           </div>
+          <p className="footer-item font-[family-name:var(--font-mono)] text-xs self-start md:self-end">
+            <span className="blink">▮</span>
+          </p>
         </div>
       </footer>
     </div>
