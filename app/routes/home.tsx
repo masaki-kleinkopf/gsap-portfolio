@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -210,7 +210,10 @@ export default function Home() {
             />
           </div>
         </div>
-        <div className="intro-caption absolute bottom-[22%] md:bottom-[25%] bg-[var(--color-magenta)] text-white px-6 py-3 border-2 border-white" style={{ scale: 0 }}>
+        <div
+          className="intro-caption absolute bottom-[22%] md:bottom-[25%] bg-[var(--color-magenta)] text-white px-6 py-3 border-2 border-white"
+          style={{ scale: 0 }}
+        >
           <p className="font-bold text-2xl md:text-3xl tracking-tight leading-none">
             Masaki Kleinkopf
           </p>
@@ -228,7 +231,7 @@ export default function Home() {
         </div>
       </section>
       <nav className="flex justify-between items-center px-5 md:px-10 py-4 text-sm">
-        <span className="font-bold">masaki k.</span>
+        <span className="font-bold">masaki</span>
         <div className="flex items-center gap-6 text-[var(--color-text-muted)]">
           <a
             href="#work"
@@ -259,13 +262,6 @@ export default function Home() {
         <p className="hero-sub text-xl md:text-2xl mt-8 max-w-md text-[var(--color-text-muted)]">
           Software developer.
         </p>
-        <div className="sticker absolute top-16 right-8 md:right-16 w-20 h-20 md:w-28 md:h-28 border-2 border-[var(--color-magenta)] rounded-full flex items-center justify-center text-[var(--color-magenta)] font-[family-name:var(--font-mono)] text-[10px] md:text-xs text-center leading-tight pointer-events-none">
-          scroll
-          <br />
-          down
-          <br />
-          :)
-        </div>
       </section>
       <div className="overflow-hidden border-y-2 border-[var(--color-text)] py-4">
         <div className="marquee-track whitespace-nowrap inline-block">
@@ -274,8 +270,9 @@ export default function Home() {
               key={n}
               className="text-4xl md:text-5xl font-bold tracking-tight"
             >
-              REACT · TYPESCRIPT · GSAP · REACT ROUTER · TAILWIND · NODE · FIGMA
-              · <span className="text-[var(--color-magenta)]">✦</span> ·{" "}
+              REACT · VUE · TYPESCRIPT · GSAP · REACT ROUTER · CSS · TAILWIND ·
+              NODE · FIGMA ·{" "}
+              <span className="text-[var(--color-magenta)]">✦</span> ·{" "}
             </span>
           ))}
         </div>
