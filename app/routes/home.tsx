@@ -7,13 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Masaki Kleinkopf" },
-    {
-      name: "description",
-      content: "The personal homepage of Masaki Kleinkopf.",
-    },
-  ];
+  return [{ title: "Masaki Kleinkopf" }];
 }
 
 export default function Home() {
@@ -359,7 +353,7 @@ export default function Home() {
           <div className="space-y-1">
             <p className="footer-item">© 2026 Masaki Kleinkopf</p>
             <p className="footer-item font-[family-name:var(--font-mono)] text-xs">
-              React Router + GSAP + Helvetica + vibes
+              React Router + GSAP
             </p>
           </div>
           <p className="footer-item font-[family-name:var(--font-mono)] text-xs self-start md:self-end">
