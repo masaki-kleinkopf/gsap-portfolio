@@ -280,7 +280,7 @@ export default function Home() {
         </h2>
         <p className="text-lg text-[var(--color-text-muted)] mb-2 max-w-lg">
           Currently building e-commerce software at Munchkin working in headless
-          Shopify. Previous agency experience working with a variety of brands.
+          Shopify. Previous agency experience working with a variety of brands and technologies.
         </p>
         <div className="mt-8">
           <a
