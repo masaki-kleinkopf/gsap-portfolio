@@ -7,7 +7,20 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "Masaki Kleinkopf" }];
+  return [
+    { title: "Masaki Kleinkopf" },
+    {
+      name: "description",
+      content:
+        "Personal site and portfolio of Masaki Kleinkopf, software developer.",
+    },
+    { property: "og:title", content: "Masaki Kleinkopf" },
+    {
+      property: "og:description",
+      content:
+        "Personal site and portfolio of Masaki Kleinkopf, software developer.",
+    },
+  ];
 }
 
 export default function Home() {
@@ -280,7 +293,8 @@ export default function Home() {
         </h2>
         <p className="text-lg text-[var(--color-text-muted)] mb-2 max-w-lg">
           Currently building e-commerce software at Munchkin working in headless
-          Shopify. Previous agency experience working with a variety of brands and technologies.
+          Shopify. Previous agency experience working with a variety of brands
+          and technologies.
         </p>
         <div className="mt-8">
           <a
