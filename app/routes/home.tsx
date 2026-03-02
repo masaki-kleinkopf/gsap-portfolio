@@ -344,7 +344,7 @@ export default function Home() {
         <div className="flex flex-wrap gap-4">
           <a
             href="mailto:masaki.kleinkopf@gmail.com"
-            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-magenta)] text-white hover:!text-white no-underline border-2 border-[var(--color-text)]"
+            className="fun-btn inline-block text-lg font-bold px-8 py-4 bg-[var(--color-magenta)] !text-white hover:!text-white no-underline border-2 border-[var(--color-text)]"
           >
             masaki.kleinkopf@gmail.com
           </a>
