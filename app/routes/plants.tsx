@@ -1,4 +1,4 @@
-import type { MetaFunction } from "react-router";
+import type { MetaFunction, LinksFunction } from "react-router";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -6,13 +6,28 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const BG = "#040c05";
-const ACCENT = "#4dff7c";
-const WARM = "#ffd666";
-const SOIL = "#d4956a";
-const PETAL = "#ffb3d9";
+// ── Design tokens ──────────────────────────────────────────────────────────
+const BG = "#0d1410";
+const ACCENT = "#c8a228"; // warm amber — the anchor colour
+const GREEN = "#5e9e6a"; // natural muted sage green
+const SOIL = "#a06840"; // earthy sienna
+const PETAL = "#c47a90"; // dusty rose
+const RULE = "rgba(200,162,40,0.2)"; // thin amber rule
 
-// Cell positions (offset from center) for the meristem diagram
+const SERIF = "'DM Serif Display', Georgia, serif";
+
+// Chromosome ideogram palette — botanical specimen pigments
+const GENE_COLORS = [
+  "#8b4a3c", // terracotta
+  "#c8a228", // amber
+  "#4a8758", // forest
+  "#3d7a90", // slate blue
+  "#745590", // violet
+  "#b06838", // sienna
+  "#3a876a", // teal
+  "#5e9e6a", // sage
+];
+
 const DAUGHTER_CELLS: { x: number; y: number; type: "leaf" | "root" }[] = [
   { x: 0, y: -90, type: "leaf" },
   { x: 63, y: -63, type: "leaf" },
@@ -24,41 +39,23 @@ const DAUGHTER_CELLS: { x: number; y: number; type: "leaf" | "root" }[] = [
   { x: -63, y: -63, type: "root" },
 ];
 
-// Same 8 gene colours shown in every cell's strip
-const GENE_COLORS = [
-  "#ff6b6b",
-  "#ffd666",
-  ACCENT,
-  "#4af2ff",
-  "#b987ff",
-  "#ff9f43",
-  "#ff6b6b",
-  ACCENT,
-];
-
 const CELL_TYPES = [
-  {
-    id: "root",
-    label: "ROOT CELL",
-    desc: "Grows into soil.\nAbsorbs water & minerals.",
-    color: SOIL,
-    activeGenes: [0, 2, 4, 6],
-  },
-  {
-    id: "leaf",
-    label: "LEAF CELL",
-    desc: "Faces the sun.\nRuns photosynthesis.",
-    color: ACCENT,
-    activeGenes: [1, 3, 5, 7],
-  },
+  { id: "root", label: "Root Cell", color: SOIL, activeGenes: [0, 2, 4, 6] },
+  { id: "leaf", label: "Leaf Cell", color: GREEN, activeGenes: [1, 3, 5, 7] },
   {
     id: "flower",
-    label: "FLOWER CELL",
-    desc: "Attracts pollinators.\nProduces seeds.",
+    label: "Flower Cell",
     color: PETAL,
     activeGenes: [0, 3, 5, 6, 7],
   },
 ] as const;
+
+export const links: LinksFunction = () => [
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap",
+  },
+];
 
 export const meta: MetaFunction = () => [
   { title: "Lab — Plants" },
@@ -73,45 +70,45 @@ export default function Plants() {
       // ── Hero ──────────────────────────────────────────────────────────────
       gsap.from(".plant-eyebrow", {
         opacity: 0,
-        y: 16,
-        duration: 0.6,
-        delay: 0.2,
+        y: 12,
+        duration: 0.7,
+        delay: 0.3,
       });
       gsap.from(".plant-title-word", {
         opacity: 0,
-        y: 60,
-        stagger: 0.12,
-        duration: 0.9,
-        delay: 0.5,
+        y: 48,
+        stagger: 0.14,
+        duration: 1,
+        delay: 0.6,
         ease: "power3.out",
       });
-      gsap.from(".plant-sub", { opacity: 0, duration: 0.8, delay: 1.2 });
+      gsap.from(".plant-sub", { opacity: 0, duration: 1, delay: 1.3 });
       gsap.from(".plant-scroll-hint", {
         opacity: 0,
-        y: 8,
-        duration: 0.6,
-        delay: 1.6,
+        duration: 0.7,
+        delay: 1.8,
       });
 
-      gsap.to(".plant-orb", {
-        boxShadow: `0 0 90px 35px rgba(77,255,124,0.18), 0 0 180px 70px rgba(77,255,124,0.07)`,
-        scale: 1.07,
-        duration: 2.8,
+      // Orb — warm, slow breath; no neon flash
+      gsap.to(".plant-orb-inner", {
+        opacity: 0.18,
+        scale: 1.06,
+        duration: 3.5,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
       });
 
+      // Particles — barely visible, just atmospheric
       gsap.utils.toArray<HTMLElement>(".plant-particle").forEach((el) => {
         gsap.to(el, {
-          x: gsap.utils.random(-55, 55),
-          y: gsap.utils.random(-55, 55),
-          rotation: gsap.utils.random(-80, 80),
-          duration: gsap.utils.random(3, 7),
+          x: gsap.utils.random(-30, 30),
+          y: gsap.utils.random(-30, 30),
+          duration: gsap.utils.random(5, 10),
           repeat: -1,
           yoyo: true,
           ease: "sine.inOut",
-          delay: gsap.utils.random(0, 5),
+          delay: gsap.utils.random(0, 6),
         });
       });
 
@@ -122,23 +119,17 @@ export default function Plants() {
           start: "top top",
           end: "+=280%",
           pin: true,
-          scrub: 1.2,
+          scrub: 1.4,
         },
       });
 
       meristemTl
-        .from(".meristem-intro", { opacity: 0, y: 20, duration: 0.8 })
+        .from(".meristem-intro", { opacity: 0, y: 18, duration: 0.8 })
         .fromTo(
           ".meristem-cell",
           { scale: 0, opacity: 0 },
-          {
-            scale: 1,
-            opacity: 1,
-            duration: 0.5,
-            ease: "back.out(1.7)",
-            boxShadow: `0 0 30px rgba(77,255,124,0.45)`,
-          },
-          "<0.3",
+          { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" },
+          "<0.4",
         )
         .fromTo(
           ".daughter-cell",
@@ -155,7 +146,7 @@ export default function Plants() {
             opacity: 1,
             stagger: 0.07,
             duration: 0.7,
-            ease: "back.out(1.5)",
+            ease: "back.out(1.4)",
           },
           "<0.4",
         )
@@ -163,21 +154,21 @@ export default function Plants() {
           ".meristem-step-2",
           { opacity: 0, y: 14 },
           { opacity: 1, y: 0, duration: 0.5 },
-          "<0.6",
+          "<0.5",
         )
-        // Cells differentiate
         .to(".daughter-leaf", {
-          backgroundColor: "rgba(77,255,124,0.14)",
+          backgroundColor: "rgba(94,158,106,0.12)",
+          borderColor: GREEN,
           stagger: 0.07,
-          duration: 0.5,
+          duration: 0.6,
         })
         .to(
           ".daughter-root",
           {
-            backgroundColor: "rgba(212,149,106,0.14)",
+            backgroundColor: "rgba(160,104,64,0.12)",
             borderColor: SOIL,
             stagger: 0.07,
-            duration: 0.5,
+            duration: 0.6,
           },
           "<0.15",
         )
@@ -201,10 +192,10 @@ export default function Plants() {
       });
 
       expressionTl
-        .from(".expression-intro", { opacity: 0, y: 20, duration: 0.7 })
+        .from(".expression-intro", { opacity: 0, y: 18, duration: 0.7 })
         .from(
           ".cell-col",
-          { opacity: 0, y: 30, stagger: 0.15, duration: 0.8 },
+          { opacity: 0, y: 28, stagger: 0.15, duration: 0.8 },
           "<0.3",
         )
         .from(
@@ -213,28 +204,22 @@ export default function Plants() {
           "<0.2",
         )
         .to({}, { duration: 1 })
-        // Root genes light up
         .to(".gene-active-root", {
           opacity: 1,
-          boxShadow: `0 0 8px ${SOIL}`,
           stagger: 0.07,
-          duration: 0.4,
+          duration: 0.45,
         })
-        .to({}, { duration: 0.8 })
-        // Leaf genes light up
+        .to({}, { duration: 0.9 })
         .to(".gene-active-leaf", {
           opacity: 1,
-          boxShadow: `0 0 8px ${ACCENT}`,
           stagger: 0.07,
-          duration: 0.4,
+          duration: 0.45,
         })
-        .to({}, { duration: 0.8 })
-        // Flower genes light up
+        .to({}, { duration: 0.9 })
         .to(".gene-active-flower", {
           opacity: 1,
-          boxShadow: `0 0 8px ${PETAL}`,
           stagger: 0.07,
-          duration: 0.4,
+          duration: 0.45,
         })
         .fromTo(
           ".expression-caption",
@@ -243,7 +228,7 @@ export default function Plants() {
         )
         .to({}, { duration: 1 });
 
-      // ── Section C: Phytochrome / light sensing (pinned, scrub) ────────────
+      // ── Section C: Phytochrome (pinned, scrub) ────────────────────────────
       const lightTl = gsap.timeline({
         scrollTrigger: {
           trigger: ".section-light",
@@ -255,44 +240,46 @@ export default function Plants() {
       });
 
       lightTl
-        .from(".light-intro", { opacity: 0, y: 20, duration: 0.7 })
+        .from(".light-intro", { opacity: 0, y: 18, duration: 0.7 })
         .from(
           ".pr-badge",
-          { opacity: 0, x: -16, stagger: 0.1, duration: 0.5 },
+          { opacity: 0, x: -14, stagger: 0.1, duration: 0.5 },
           "<0.3",
         )
         .from(
           ".phyto-wrapper",
-          { opacity: 0, scale: 0.85, duration: 0.6, ease: "back.out(1.5)" },
+          { opacity: 0, scale: 0.88, duration: 0.6, ease: "power2.out" },
           "<0.2",
         )
-        .to({}, { duration: 0.8 })
-        // Photon falls toward molecule
-        .to(".photon", { y: 82, duration: 0.7, ease: "power2.in" })
-        // Impact flash → transform
+        .to({}, { duration: 0.9 })
+        // Photon descends
+        .to(".photon", { y: 86, opacity: 0.9, duration: 0.7, ease: "power2.in" })
+        // Conformational change — the protein physically morphs
         .to(".phyto-molecule", {
-          scale: 1.18,
-          borderColor: ACCENT,
-          boxShadow: `0 0 55px rgba(77,255,124,0.65)`,
-          duration: 0.15,
+          borderRadius: "42% 58% 62% 38% / 48% 44% 56% 52%",
+          scale: 1.12,
+          borderColor: GREEN,
+          backgroundColor: "rgba(94,158,106,0.1)",
+          boxShadow: `0 6px 32px rgba(94,158,106,0.2)`,
+          duration: 0.2,
           ease: "power3.out",
         })
         .to(".phyto-molecule", {
           scale: 1,
-          duration: 0.35,
+          duration: 0.4,
           ease: "back.out(2)",
         })
-        .to(".photon", { opacity: 0, duration: 0.15 }, "<-0.2")
-        // Swap Pr → Pfr labels
+        .to(".photon", { opacity: 0, duration: 0.15 }, "<-0.3")
+        // Label swap
         .to(".phyto-label-pr", { opacity: 0, duration: 0.2 })
         .to(".phyto-label-pfr", { opacity: 1, duration: 0.2 }, "<0.1")
         .to(".phyto-state-inactive", { opacity: 0, duration: 0.2 }, "<")
         .to(".phyto-state-active", { opacity: 1, duration: 0.2 }, "<0.1")
-        // Effects cascade in
+        // Downstream effects cascade
         .to(".light-effect", {
           opacity: 1,
           x: 0,
-          stagger: 0.12,
+          stagger: 0.13,
           duration: 0.5,
         })
         .to({}, { duration: 1 });
@@ -318,9 +305,9 @@ export default function Plants() {
 
       gsap.from(".plant-outro-line", {
         opacity: 0,
-        y: 28,
+        y: 24,
         stagger: 0.15,
-        duration: 0.9,
+        duration: 1,
         ease: "power2.out",
         scrollTrigger: {
           trigger: ".plant-outro-section",
@@ -336,96 +323,88 @@ export default function Plants() {
       ref={containerRef}
       style={{
         background: BG,
-        color: "#e8f8ed",
+        color: "#e6dfd0",
         fontFamily: "var(--font-sans)",
         overflowX: "hidden",
       }}
     >
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
-        {/* Dot grid */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(rgba(77,255,124,0.1) 1px, transparent 1px)`,
-            backgroundSize: "44px 44px",
-          }}
-        />
-
-        {/* Particles — mix of dots and tiny squares to suggest pollen/spores */}
-        {Array.from({ length: 28 }).map((_, i) => (
+      <section
+        className="relative h-screen flex flex-col items-center justify-center overflow-hidden"
+        style={{
+          background: `radial-gradient(ellipse at 50% 38%, #162118 0%, ${BG} 70%)`,
+        }}
+      >
+        {/* Atmospheric particles — barely there */}
+        {Array.from({ length: 14 }).map((_, i) => (
           <div
             key={i}
-            className="plant-particle absolute pointer-events-none"
+            className="plant-particle absolute rounded-full pointer-events-none"
             style={{
-              width: i % 5 === 0 ? 6 : i % 3 === 0 ? 4 : 2,
-              height: i % 5 === 0 ? 6 : i % 3 === 0 ? 4 : 2,
-              borderRadius: i % 4 === 0 ? "2px" : "50%",
-              background: i % 7 === 0 ? WARM : ACCENT,
-              opacity: 0.1 + (i % 7) * 0.07,
-              left: `${(i * 39 + 5) % 94}%`,
-              top: `${(i * 57 + 9) % 90}%`,
+              width: i % 3 === 0 ? 3 : 2,
+              height: i % 3 === 0 ? 3 : 2,
+              background: i % 4 === 0 ? ACCENT : GREEN,
+              opacity: 0.06 + (i % 5) * 0.04,
+              left: `${(i * 47 + 8) % 92}%`,
+              top: `${(i * 61 + 12) % 88}%`,
             }}
           />
         ))}
 
-        {/* Orb */}
+        {/* Soft warm orb */}
         <div
-          className="plant-orb absolute rounded-full pointer-events-none"
+          className="plant-orb-inner absolute rounded-full pointer-events-none"
           style={{
-            width: 320,
-            height: 320,
-            border: `1px solid rgba(77,255,124,0.13)`,
-            boxShadow: `0 0 60px 20px rgba(77,255,124,0.08)`,
+            width: 360,
+            height: 360,
+            background: `radial-gradient(circle, rgba(200,162,40,0.08) 0%, transparent 70%)`,
+            opacity: 0.12,
           }}
         />
 
         {/* Content */}
         <div className="relative z-10 text-center px-6">
           <p
-            className="plant-eyebrow font-mono text-xs tracking-[0.25em] mb-8"
-            style={{ color: ACCENT }}
+            className="plant-eyebrow font-mono text-[11px] tracking-[0.22em] mb-10"
+            style={{ color: "rgba(200,162,40,0.65)" }}
           >
-            [ PLANT GENETICS / SCROLLYTELLING DEMO ]
+            PLANT GENETICS
           </p>
-          <h1 className="text-[clamp(2.8rem,9vw,7.5rem)] font-bold leading-tight mb-8">
-            <span className="plant-title-word inline-block text-white">The</span>{" "}
-            <span
-              className="plant-title-word inline-block"
-              style={{ color: ACCENT }}
-            >
-              Blueprint
+          <h1
+            className="text-[clamp(3rem,9vw,7rem)] leading-[1.05] mb-10"
+            style={{ fontFamily: SERIF }}
+          >
+            <span className="plant-title-word block text-white">
+              The Blueprint
             </span>
-            <br />
-            <span className="plant-title-word inline-block text-white">
-              in Every
-            </span>{" "}
             <span
-              className="plant-title-word inline-block"
+              className="plant-title-word block italic"
               style={{ color: ACCENT }}
             >
-              Leaf
+              Inside Every Leaf
             </span>
           </h1>
           <p
-            className="plant-sub text-lg md:text-xl max-w-sm mx-auto leading-relaxed"
-            style={{ color: "rgba(232,248,237,0.5)" }}
+            className="plant-sub max-w-sm mx-auto leading-relaxed text-base md:text-lg"
+            style={{ color: "rgba(230,223,208,0.5)" }}
           >
-            A single cell holds the complete instructions for an oak tree —
-            written in a language{" "}
-            <span className="font-mono" style={{ color: ACCENT }}>
-              3 billion letters long
-            </span>
-            .
+            A single plant cell contains the complete instructions for a
+            400-year-old oak. Written not in binary — but in nucleotides.
           </p>
         </div>
 
-        <p
-          className="plant-scroll-hint absolute bottom-8 font-mono text-xs tracking-widest"
-          style={{ color: "rgba(77,255,124,0.4)" }}
+        {/* Thin amber rule at bottom */}
+        <div
+          className="plant-scroll-hint absolute bottom-0 left-0 right-0 flex flex-col items-center pb-8 gap-4"
         >
-          SCROLL TO EXPLORE ↓
-        </p>
+          <div style={{ width: 1, height: 40, background: `rgba(200,162,40,0.25)` }} />
+          <span
+            className="font-mono text-[10px] tracking-[0.2em]"
+            style={{ color: "rgba(200,162,40,0.4)" }}
+          >
+            SCROLL
+          </span>
+        </div>
       </section>
 
       {/* ── SECTION A: MERISTEM ──────────────────────────────────────────── */}
@@ -435,44 +414,53 @@ export default function Plants() {
       >
         <div className="flex w-full h-full">
           {/* Left: text */}
-          <div className="w-1/2 h-full flex items-center px-10 md:px-16">
-            <div>
-              <p
-                className="font-mono text-xs tracking-widest mb-5"
-                style={{ color: ACCENT }}
+          <div className="w-1/2 h-full flex items-center px-12 md:px-20">
+            <div className="max-w-xs">
+              {/* Eyebrow */}
+              <div className="flex items-center gap-4 mb-6">
+                <span
+                  className="font-mono text-[11px] tracking-widest"
+                  style={{ color: ACCENT }}
+                >
+                  I
+                </span>
+                <div style={{ flex: 1, height: 1, background: RULE }} />
+              </div>
+              <h2
+                className="text-3xl md:text-[2.6rem] leading-tight mb-6"
+                style={{ fontFamily: SERIF, color: "#e6dfd0" }}
               >
-                [ 01 / THE MERISTEM ]
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
                 The Plant's
                 <br />
-                Fountain of Youth
+                <span className="italic" style={{ color: ACCENT }}>
+                  Fountain of Youth
+                </span>
               </h2>
               <p
-                className="meristem-intro leading-relaxed mb-6 max-w-xs"
-                style={{ color: "rgba(232,248,237,0.55)" }}
+                className="meristem-intro leading-relaxed mb-6 text-[0.95rem]"
+                style={{ color: "rgba(230,223,208,0.6)" }}
               >
-                Hidden at every growing tip is a tiny zone of cells that never
-                fully differentiates —{" "}
-                <span className="font-mono" style={{ color: ACCENT }}>
-                  the meristem
-                </span>
-                . It keeps dividing, indefinitely.
+                Hidden at every growing tip is a tiny zone called the{" "}
+                <span style={{ color: "#e6dfd0" }}>meristem</span> — cells that
+                never fully differentiate. They keep dividing, indefinitely,
+                producing the entire plant body.
               </p>
               <p
-                className="meristem-step-2 leading-relaxed mb-6 max-w-xs"
-                style={{ opacity: 0, color: "rgba(232,248,237,0.55)" }}
+                className="meristem-step-2 leading-relaxed mb-6 text-[0.95rem]"
+                style={{ opacity: 0, color: "rgba(230,223,208,0.6)" }}
               >
-                Daughter cells bud off and migrate outward, receiving chemical
-                signals that tell them what to become.
+                Daughter cells bud off and migrate outward. As they travel, a
+                cascade of chemical signals tells each one what to become.
               </p>
               <p
-                className="meristem-step-3 leading-relaxed max-w-xs"
-                style={{ opacity: 0, color: "rgba(232,248,237,0.55)" }}
+                className="meristem-step-3 leading-relaxed text-[0.95rem]"
+                style={{ opacity: 0, color: "rgba(230,223,208,0.6)" }}
               >
-                Some reach toward light and become leaves. Others push into the
+                Some push toward light and become leaves. Others grow into the
                 dark and become roots.{" "}
-                <span style={{ color: ACCENT }}>Same DNA — different fate.</span>
+                <span style={{ color: "#e6dfd0" }}>
+                  Same DNA — entirely different fate.
+                </span>
               </p>
             </div>
           </div>
@@ -480,22 +468,22 @@ export default function Plants() {
           {/* Right: cell diagram */}
           <div className="w-1/2 h-full flex items-center justify-center relative">
             <div className="relative" style={{ width: 240, height: 240 }}>
-              {/* Meristem (mother cell) */}
+              {/* Mother cell */}
               <div
                 className="meristem-cell absolute rounded-full flex items-center justify-center"
                 style={{
-                  width: 48,
-                  height: 48,
-                  left: "calc(50% - 24px)",
-                  top: "calc(50% - 24px)",
-                  border: `2px solid ${ACCENT}`,
-                  background: `rgba(77,255,124,0.1)`,
+                  width: 46,
+                  height: 46,
+                  left: "calc(50% - 23px)",
+                  top: "calc(50% - 23px)",
+                  border: `1.5px solid ${ACCENT}`,
+                  background: `rgba(200,162,40,0.08)`,
                   zIndex: 2,
                 }}
               >
                 <span
                   className="font-mono"
-                  style={{ fontSize: 9, color: ACCENT }}
+                  style={{ fontSize: 9, color: ACCENT, letterSpacing: "0.1em" }}
                 >
                   M
                 </span>
@@ -507,44 +495,42 @@ export default function Plants() {
                   key={i}
                   className={`daughter-cell daughter-${type} absolute rounded-full`}
                   style={{
-                    width: 38,
-                    height: 38,
-                    left: `calc(50% + ${x}px - 19px)`,
-                    top: `calc(50% + ${y}px - 19px)`,
-                    border: `1.5px solid ${type === "leaf" ? ACCENT : SOIL}`,
+                    width: 36,
+                    height: 36,
+                    left: `calc(50% + ${x}px - 18px)`,
+                    top: `calc(50% + ${y}px - 18px)`,
+                    border: `1px solid ${type === "leaf" ? GREEN : SOIL}`,
                     background: "transparent",
+                    opacity: 0,
                   }}
                 />
               ))}
             </div>
 
             {/* Legend */}
-            <div className="absolute bottom-12 right-10 flex flex-col gap-2">
+            <div
+              className="absolute bottom-14 right-12 space-y-2"
+              style={{ borderLeft: `1px solid ${RULE}`, paddingLeft: 14 }}
+            >
               <div className="flex items-center gap-2">
                 <div
-                  className="w-3 h-3 rounded-full"
-                  style={{
-                    border: `1.5px solid ${ACCENT}`,
-                    background: "rgba(77,255,124,0.14)",
-                  }}
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ border: `1px solid ${GREEN}` }}
                 />
                 <span
-                  className="font-mono text-xs"
-                  style={{ color: ACCENT }}
+                  className="font-mono text-[10px] tracking-widest"
+                  style={{ color: GREEN }}
                 >
                   LEAF
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div
-                  className="w-3 h-3 rounded-full"
-                  style={{
-                    border: `1.5px solid ${SOIL}`,
-                    background: "rgba(212,149,106,0.14)",
-                  }}
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ border: `1px solid ${SOIL}` }}
                 />
                 <span
-                  className="font-mono text-xs"
+                  className="font-mono text-[10px] tracking-widest"
                   style={{ color: SOIL }}
                 >
                   ROOT
@@ -560,71 +546,69 @@ export default function Plants() {
         className="section-expression h-screen flex flex-col items-center justify-center overflow-hidden px-8 md:px-16"
         style={{ background: BG }}
       >
-        <div className="expression-intro text-center mb-14 max-w-lg">
-          <p
-            className="font-mono text-xs tracking-widest mb-5"
-            style={{ color: ACCENT }}
+        <div className="expression-intro text-center mb-16 max-w-xl">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div style={{ width: 40, height: 1, background: RULE }} />
+            <span
+              className="font-mono text-[11px] tracking-widest"
+              style={{ color: ACCENT }}
+            >
+              II
+            </span>
+            <div style={{ width: 40, height: 1, background: RULE }} />
+          </div>
+          <h2
+            className="text-3xl md:text-[2.6rem] leading-tight mb-5"
+            style={{ fontFamily: SERIF, color: "#e6dfd0" }}
           >
-            [ 02 / GENE EXPRESSION ]
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Same DNA. Different Destiny.
+            Same DNA.{" "}
+            <span className="italic" style={{ color: ACCENT }}>
+              Different Destiny.
+            </span>
           </h2>
           <p
-            className="leading-relaxed"
-            style={{ color: "rgba(232,248,237,0.5)" }}
+            className="text-[0.95rem] leading-relaxed"
+            style={{ color: "rgba(230,223,208,0.55)" }}
           >
-            Every cell in a plant carries the{" "}
-            <em>exact same genome</em>. What separates a root from a petal is
-            which genes are switched on.
+            Every cell in a plant carries the exact same genome. What separates
+            a root hair from a flower petal is which genes are switched on —
+            and which are silenced.
           </p>
         </div>
 
         {/* Three cell types */}
-        <div className="flex gap-8 md:gap-14 items-end">
-          {CELL_TYPES.map(({ id, label, desc, color, activeGenes }) => (
-            <div
-              key={id}
-              className="cell-col flex flex-col items-center gap-3"
-            >
-              {/* Cell icon */}
+        <div className="flex gap-10 md:gap-20 items-end">
+          {CELL_TYPES.map(({ id, label, color, activeGenes }) => (
+            <div key={id} className="cell-col flex flex-col items-center gap-3">
               <div
                 className="cell-icon rounded-full"
                 style={{
-                  width: 52,
-                  height: 52,
-                  border: `2px solid ${color}`,
-                  background: `${color}14`,
+                  width: 48,
+                  height: 48,
+                  border: `1.5px solid ${color}`,
+                  background: `${color}12`,
                 }}
               />
               <span
-                className="font-mono text-xs text-center"
+                className="font-mono text-[10px] tracking-widest text-center"
                 style={{ color }}
               >
-                {label}
+                {label.toUpperCase()}
               </span>
-              <p
-                className="text-xs text-center whitespace-pre-line"
-                style={{ color: "rgba(232,248,237,0.38)" }}
-              >
-                {desc}
-              </p>
 
-              {/* Gene strip — same genes, different ones active */}
-              <div className="flex gap-1 mt-3">
+              {/* Gene strip */}
+              <div className="flex gap-[3px] mt-2">
                 {GENE_COLORS.map((segColor, i) => {
-                  const isActive = activeGenes.includes(
-                    i as (typeof activeGenes)[number],
-                  );
+                  const isActive = (activeGenes as readonly number[]).includes(i);
                   return (
                     <div
                       key={i}
                       className={isActive ? `gene-active-${id}` : undefined}
                       style={{
-                        width: 14,
-                        height: 30,
+                        width: 13,
+                        height: 32,
                         background: segColor,
-                        borderRadius: 3,
+                        borderRadius: 2,
                         opacity: 0.1,
                       }}
                     />
@@ -636,84 +620,89 @@ export default function Plants() {
         </div>
 
         <p
-          className="expression-caption font-mono text-xs text-center mt-12 max-w-sm leading-relaxed"
-          style={{ opacity: 0, color: "rgba(232,248,237,0.35)" }}
+          className="expression-caption text-center mt-12 text-[0.85rem] italic max-w-sm leading-relaxed"
+          style={{
+            opacity: 0,
+            color: "rgba(230,223,208,0.4)",
+            fontFamily: SERIF,
+          }}
         >
-          This selective activation — called differential gene expression — is
-          how a single genome builds an entire organism.
+          This selective activation — differential gene expression — is how a
+          25,000-gene genome builds an entire organism from a single cell.
         </p>
       </section>
 
-      {/* ── SECTION C: PHYTOCHROME / LIGHT SENSING ───────────────────────── */}
+      {/* ── SECTION C: PHYTOCHROME ────────────────────────────────────────── */}
       <section
         className="section-light h-screen flex overflow-hidden"
         style={{ background: BG }}
       >
         <div className="flex w-full h-full">
           {/* Left: text */}
-          <div className="w-1/2 h-full flex items-center px-10 md:px-16">
-            <div>
-              <p
-                className="font-mono text-xs tracking-widest mb-5"
-                style={{ color: ACCENT }}
+          <div className="w-1/2 h-full flex items-center px-12 md:px-20">
+            <div className="max-w-xs">
+              <div className="flex items-center gap-4 mb-6">
+                <span
+                  className="font-mono text-[11px] tracking-widest"
+                  style={{ color: ACCENT }}
+                >
+                  III
+                </span>
+                <div style={{ flex: 1, height: 1, background: RULE }} />
+              </div>
+              <h2
+                className="text-3xl md:text-[2.6rem] leading-tight mb-6"
+                style={{ fontFamily: SERIF, color: "#e6dfd0" }}
               >
-                [ 03 / PHYTOCHROME ]
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                Plants Can See
+                Plants Can{" "}
+                <span className="italic" style={{ color: ACCENT }}>
+                  See
+                </span>
               </h2>
               <div
-                className="light-intro max-w-xs space-y-4"
-                style={{ color: "rgba(232,248,237,0.55)" }}
+                className="light-intro space-y-4 text-[0.95rem]"
+                style={{ color: "rgba(230,223,208,0.6)" }}
               >
                 <p className="leading-relaxed">
                   Plants carry a protein called{" "}
-                  <span className="font-mono" style={{ color: WARM }}>
-                    phytochrome
-                  </span>{" "}
-                  that changes shape when it absorbs red light — toggling between
-                  an inactive and an active state.
+                  <span style={{ color: "#e6dfd0" }}>phytochrome</span> that
+                  changes its three-dimensional shape upon absorbing red light —
+                  flipping between an inactive and an active state.
                 </p>
                 <p className="leading-relaxed">
-                  This switch answers questions the plant needs to survive: Is it
-                  day or night? Am I being shaded? Is spring coming?
+                  This molecular switch answers the questions a plant needs
+                  answered: Is it day? Am I shaded? Has winter passed?
                 </p>
               </div>
 
               {/* Pr / Pfr key */}
-              <div className="mt-8 space-y-2">
+              <div className="mt-8 space-y-2.5">
                 {[
                   {
-                    cls: "pr-badge",
                     tag: "Pr",
-                    tagColor: "#cc3333",
-                    tagBg: "rgba(255,80,80,0.12)",
-                    tagBorder: "rgba(255,80,80,0.3)",
-                    label: "inactive — absorbs red light (660 nm)",
+                    tagColor: "#c06060",
+                    label: "inactive · absorbs red light (660 nm)",
                   },
                   {
-                    cls: "pr-badge",
                     tag: "Pfr",
-                    tagColor: ACCENT,
-                    tagBg: `rgba(77,255,124,0.12)`,
-                    tagBorder: `rgba(77,255,124,0.3)`,
-                    label: "active — triggers developmental signals",
+                    tagColor: GREEN,
+                    label: "active · triggers developmental signals",
                   },
-                ].map(({ cls, tag, tagColor, tagBg, tagBorder, label }) => (
-                  <div key={tag} className={`${cls} flex items-center gap-3`}>
+                ].map(({ tag, tagColor, label }) => (
+                  <div key={tag} className="pr-badge flex items-center gap-3">
                     <span
-                      className="font-mono text-xs px-2 py-0.5 rounded flex-shrink-0"
+                      className="font-mono text-[11px] px-2 py-0.5 flex-shrink-0"
                       style={{
                         color: tagColor,
-                        background: tagBg,
-                        border: `1px solid ${tagBorder}`,
+                        border: `1px solid ${tagColor}44`,
+                        borderRadius: 3,
                       }}
                     >
                       {tag}
                     </span>
                     <span
                       className="text-xs"
-                      style={{ color: "rgba(232,248,237,0.4)" }}
+                      style={{ color: "rgba(230,223,208,0.4)" }}
                     >
                       {label}
                     </span>
@@ -732,15 +721,23 @@ export default function Plants() {
                   <div
                     key={effect}
                     className="light-effect flex items-center gap-3"
-                    style={{ opacity: 0, transform: "translateX(20px)" }}
+                    style={{
+                      opacity: 0,
+                      transform: "translateX(16px)",
+                    }}
                   >
                     <div
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ background: ACCENT }}
+                      style={{
+                        width: 4,
+                        height: 4,
+                        borderRadius: "50%",
+                        background: ACCENT,
+                        flexShrink: 0,
+                      }}
                     />
                     <span
-                      className="font-mono text-xs"
-                      style={{ color: ACCENT }}
+                      className="font-mono text-[11px] tracking-wide"
+                      style={{ color: "rgba(230,223,208,0.55)" }}
                     >
                       {effect}
                     </span>
@@ -753,42 +750,47 @@ export default function Plants() {
           {/* Right: phytochrome molecule */}
           <div className="w-1/2 h-full flex items-center justify-center">
             <div className="phyto-wrapper flex flex-col items-center relative">
-              {/* Photon (starts above molecule) */}
+              {/* Photon */}
               <div
                 className="photon absolute"
                 style={{
-                  width: 10,
-                  height: 10,
+                  width: 8,
+                  height: 8,
                   borderRadius: "50%",
-                  background: "#ff5555",
-                  boxShadow: "0 0 16px #ff5555, 0 0 30px rgba(255,85,85,0.5)",
-                  top: -30,
-                  left: "calc(50% - 5px)",
+                  background: "#e05555",
+                  boxShadow: "0 0 10px rgba(220,80,80,0.6)",
+                  top: -28,
+                  left: "calc(50% - 4px)",
+                  opacity: 0.8,
                 }}
               />
-
               <p
-                className="font-mono text-xs mb-10"
-                style={{ color: "#ff6b6b" }}
+                className="font-mono text-[10px] tracking-widest mb-10"
+                style={{ color: "rgba(220,80,80,0.55)" }}
               >
-                ↓ RED LIGHT (660 nm)
+                ↓ RED LIGHT · 660 nm
               </p>
 
-              {/* Molecule */}
+              {/* Molecule — starts as clean circle, morphs on absorption */}
               <div
-                className="phyto-molecule relative rounded-full flex items-center justify-center"
+                className="phyto-molecule relative flex items-center justify-center"
                 style={{
                   width: 120,
                   height: 120,
-                  border: "2px solid #aa2222",
-                  background: "rgba(170,34,34,0.1)",
-                  boxShadow: "0 0 24px rgba(170,34,34,0.22)",
+                  borderRadius: "50%",
+                  border: "1.5px solid #a04040",
+                  background: "rgba(160,64,64,0.07)",
+                  boxShadow: "0 4px 24px rgba(160,64,64,0.15)",
                 }}
               >
                 <div className="phyto-label-pr absolute inset-0 flex items-center justify-center">
                   <span
-                    className="font-mono text-3xl font-bold"
-                    style={{ color: "#cc3333" }}
+                    style={{
+                      fontFamily: SERIF,
+                      fontStyle: "italic",
+                      fontSize: "2rem",
+                      color: "#c06060",
+                    }}
                   >
                     Pr
                   </span>
@@ -798,8 +800,12 @@ export default function Plants() {
                   style={{ opacity: 0 }}
                 >
                   <span
-                    className="font-mono text-3xl font-bold"
-                    style={{ color: ACCENT }}
+                    style={{
+                      fontFamily: SERIF,
+                      fontStyle: "italic",
+                      fontSize: "2rem",
+                      color: GREEN,
+                    }}
                   >
                     Pfr
                   </span>
@@ -808,21 +814,21 @@ export default function Plants() {
 
               {/* State label */}
               <div className="relative mt-5 h-5">
-                <div className="phyto-state-inactive absolute inset-0 flex justify-center">
+                <div className="phyto-state-inactive absolute inset-0 flex justify-center items-center">
                   <span
-                    className="font-mono text-xs"
-                    style={{ color: "rgba(232,248,237,0.35)" }}
+                    className="font-mono text-[10px] tracking-widest"
+                    style={{ color: "rgba(230,223,208,0.3)" }}
                   >
                     INACTIVE
                   </span>
                 </div>
                 <div
-                  className="phyto-state-active absolute inset-0 flex justify-center"
+                  className="phyto-state-active absolute inset-0 flex justify-center items-center"
                   style={{ opacity: 0 }}
                 >
                   <span
-                    className="font-mono text-xs"
-                    style={{ color: ACCENT }}
+                    className="font-mono text-[10px] tracking-widest"
+                    style={{ color: GREEN }}
                   >
                     ACTIVE
                   </span>
@@ -836,96 +842,88 @@ export default function Plants() {
       {/* ── OUTRO ─────────────────────────────────────────────────────────── */}
       <section
         className="plant-outro-section min-h-screen flex flex-col items-center justify-center px-8 py-28"
-        style={{ background: BG }}
+        style={{
+          background: `radial-gradient(ellipse at 50% 60%, #121e14 0%, ${BG} 70%)`,
+        }}
       >
-        <p
-          className="plant-outro-line font-mono text-xs tracking-widest mb-20"
-          style={{ color: ACCENT }}
-        >
-          [ PLANTS, BY THE NUMBERS ]
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-20 text-center w-full max-w-3xl">
-          <div className="plant-outro-line">
-            <div
-              className="plant-stat-count font-mono font-bold text-white leading-none"
-              style={{ fontSize: "clamp(2.5rem,6vw,4.5rem)" }}
-              data-target="25000"
-            >
-              0
-            </div>
-            <div
-              className="font-mono text-xs tracking-widest mt-3"
-              style={{ color: ACCENT }}
-            >
-              GENES
-            </div>
-            <p
-              className="text-sm mt-2"
-              style={{ color: "rgba(232,248,237,0.35)" }}
-            >
-              in <em>Arabidopsis</em>, the model plant
-            </p>
-          </div>
-          <div className="plant-outro-line">
-            <div
-              className="plant-stat-count font-mono font-bold text-white leading-none"
-              style={{ fontSize: "clamp(2.5rem,6vw,4.5rem)" }}
-              data-target="391000"
-            >
-              0
-            </div>
-            <div
-              className="font-mono text-xs tracking-widest mt-3"
-              style={{ color: ACCENT }}
-            >
-              KNOWN SPECIES
-            </div>
-            <p
-              className="text-sm mt-2"
-              style={{ color: "rgba(232,248,237,0.35)" }}
-            >
-              of plants on Earth
-            </p>
-          </div>
-          <div className="plant-outro-line">
-            <div
-              className="plant-stat-count font-mono font-bold text-white leading-none"
-              style={{ fontSize: "clamp(2.5rem,6vw,4.5rem)" }}
-              data-target="25"
-            >
-              0
-            </div>
-            <div
-              className="font-mono text-xs tracking-widest mt-3"
-              style={{ color: ACCENT }}
-            >
-              % SHARED WITH HUMANS
-            </div>
-            <p
-              className="text-sm mt-2"
-              style={{ color: "rgba(232,248,237,0.35)" }}
-            >
-              plants and humans share ancient genes
-            </p>
-          </div>
+        {/* Rule + label */}
+        <div className="plant-outro-line flex items-center gap-6 mb-20 w-full max-w-3xl">
+          <div style={{ flex: 1, height: 1, background: RULE }} />
+          <span
+            className="font-mono text-[11px] tracking-[0.2em] flex-shrink-0"
+            style={{ color: "rgba(200,162,40,0.55)" }}
+          >
+            PLANTS · BY THE NUMBERS
+          </span>
+          <div style={{ flex: 1, height: 1, background: RULE }} />
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-16 text-center w-full max-w-3xl">
+          {[
+            {
+              value: "25000",
+              label: "Genes",
+              sub: "in Arabidopsis thaliana,\nthe model plant",
+            },
+            {
+              value: "391000",
+              label: "Known Species",
+              sub: "of plants described\non Earth",
+            },
+            {
+              value: "25",
+              label: "% Shared with Humans",
+              sub: "our common ancestor\nlived 1.5 billion years ago",
+            },
+          ].map(({ value, label, sub }) => (
+            <div key={label} className="plant-outro-line">
+              <div
+                className="plant-stat-count leading-none"
+                style={{
+                  fontFamily: SERIF,
+                  fontSize: "clamp(2.8rem,6vw,4.5rem)",
+                  color: ACCENT,
+                }}
+                data-target={value}
+              >
+                0
+              </div>
+              <div
+                className="font-mono text-[11px] tracking-widest mt-3"
+                style={{ color: "rgba(230,223,208,0.55)" }}
+              >
+                {label.toUpperCase()}
+              </div>
+              <p
+                className="text-xs mt-2 whitespace-pre-line"
+                style={{ color: "rgba(230,223,208,0.3)" }}
+              >
+                {sub}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Closing line — italic serif */}
         <p
-          className="plant-outro-line text-lg md:text-xl text-center max-w-lg mt-24 leading-relaxed"
-          style={{ color: "rgba(232,248,237,0.45)" }}
+          className="plant-outro-line text-xl md:text-2xl text-center mt-24 leading-relaxed max-w-lg italic"
+          style={{ fontFamily: SERIF, color: "rgba(230,223,208,0.5)" }}
         >
-          A sunflower that tracks the sun. A seed dormant for a century, then
-          sprouting. A vine that finds a trellis. All of it written in the same
-          ancient molecular alphabet.
+          Everything a plant will ever do — grow toward light, resist drought,
+          flower at the first frost — is written in the same ancient four-letter
+          alphabet.
         </p>
 
+        {/* Thin rule + back link */}
+        <div className="plant-outro-line flex items-center gap-6 mt-16 w-full max-w-3xl">
+          <div style={{ flex: 1, height: 1, background: RULE }} />
+        </div>
         <a
           href="/"
-          className="plant-outro-line font-mono text-xs tracking-widest mt-14 no-underline"
-          style={{ color: ACCENT }}
+          className="plant-outro-line font-mono text-[11px] tracking-[0.2em] mt-6 no-underline"
+          style={{ color: "rgba(200,162,40,0.5)" }}
         >
-          ← BACK TO PORTFOLIO
+          ← PORTFOLIO
         </a>
       </section>
     </div>
